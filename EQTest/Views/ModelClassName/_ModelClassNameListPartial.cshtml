@@ -1,0 +1,22 @@
+﻿@using eqtest.Models;
+@using Korzh.EasyQuery.AspNetCore
+@model Korzh.EasyQuery.Services.IPagedList<ModelClassName>
+@{
+    Layout = null;
+}
+
+<table class="table">
+    <tr>
+      <!---TO DO-->
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+		<!---TO DO-->
+    </tr>
+}
+
+</table>
+
+@Html.PageNavigator(Model)
+
