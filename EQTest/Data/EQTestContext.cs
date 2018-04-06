@@ -28,11 +28,18 @@ namespace EQTest.Data
 
         public DbSet<PermitDateTimeGroup> PermitDateTimeGroups { get; set; }
 
+        public DbSet<PermitTypeLink> PermitTypeLinks { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<PermitLot>(entity =>
             {
                 entity.HasKey(e => new { e.PermitId, e.LotId }).HasName("PK_PermitLot");
+            });
+
+            modelBuilder.Entity<PermitTypeLink>(entity =>
+            {
+                entity.HasKey(e => new { e.PermitId, e.TypeId }).HasName("PK_PermitTypeLink");
             });
 
             // modelBuilder.Entity<OrderDetail>().HasKey(od => new { od.OrderId, od.ProductId });

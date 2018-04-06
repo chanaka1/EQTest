@@ -68,7 +68,39 @@ namespace EQTest.Models
 
         public virtual IEnumerable<PermitLot> PermitLots { get; set; }
 
-        public virtual IEnumerable<PermitDateGroup> PermitDateGroups { get; set; }        
+        public virtual IEnumerable<PermitDateGroup> PermitDateGroups { get; set; }
+
+        // Should not show in the Filter Bar
+        [EqEntityAttr(UseInResult = false)]
+        public virtual IEnumerable<PermitTypeLink> PermitTypeLink { get; set; }
+    }
+
+    public class PermitTypeLink
+    {
+        public int PermitId { get; set; }
+
+        public int TypeId { get; set; }
+
+        public virtual Permit Permit { get; set; }
+
+        public virtual PermitType PermitType { get; set; }
+    }
+
+
+    public class PermitType
+    {
+        [EqEntityAttr(UseInResult = false, UseInConditions = false)]
+        public int Id { get; set; }
+
+        public string Name { get; set; }
+
+        [EqEntityAttr(UseInResult = false, UseInConditions = false)]
+        public DateTime LastModifiedDate { get; set; }
+
+        [EqEntityAttr(UseInResult = false, UseInConditions = false)]
+        public int LastModifiedBy { get; set; }
+
+        public IEnumerable<PermitTypeLink> PermitTypeLink { get; set; }
     }
 
     public enum PermitValidity
