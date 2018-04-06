@@ -1,6 +1,5 @@
-﻿@using eqtest.Models;
-@using Korzh.EasyQuery.AspNetCore
-@model Korzh.EasyQuery.Services.IPagedList<ModelClassName>
+﻿@using Korzh.EasyQuery.AspNetCore
+@model Korzh.EasyQuery.Services.IPagedList<Permit>
 @{
     Layout = null;
 }
@@ -12,7 +11,7 @@
 
 @foreach (var item in Model) {
     <tr>
-		<!---TO DO-->
+        @item.Name
     </tr>
 }
 
