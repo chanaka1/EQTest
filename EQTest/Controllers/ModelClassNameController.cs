@@ -18,19 +18,10 @@ namespace eqtest.Controllers
 {
     public class ModelClassNameController : Controller
     {
-        EqServiceProviderDb eqService;
         EQTestContext dbContext;
 
         public ModelClassNameController(EQTestContext context) {
             this.dbContext = context;
-
-            eqService = new EqServiceProviderDb();
-
-            eqService.ModelLoader = (model, modelName) => {
-                model.LoadFromEntityType(typeof(Permit));
-                model.SortEntities();
-            };
-            
         }
 
         // GET: /Order/
@@ -46,8 +37,16 @@ namespace eqtest.Controllers
         [HttpPost]
         public IActionResult GetModel([FromBody] JsonDict jsonDict) {
             string modelId = jsonDict["modelId"].ToString();
-            var model = eqService.GetModel(modelId);
-            return Json(model.SaveToJsonDict());
+            var eqServicez = new EqServiceProviderDb
+            {
+                ModelLoader = (model, modelName) =>
+                {
+                    model.LoadFromEntityType(typeof(Permit));
+                    model.SortEntities();
+                }
+            };
+            var entityModel = eqServicez.GetModel(modelId);
+            return Json(entityModel.SaveToJsonDict());
         }
 
 
@@ -58,6 +57,14 @@ namespace eqtest.Controllers
         /// <returns><see cref="IActionResult"/> object with JSON representation of the query</returns>
         [HttpPost]
         public IActionResult GetQuery([FromBody] JsonDict jsonDict) {
+            var eqService = new EqServiceProviderDb
+            {
+                ModelLoader = (model, modelName) =>
+                {
+                    model.LoadFromEntityType(typeof(Permit));
+                    model.SortEntities();
+                }
+            };
             var query = eqService.GetQueryByJsonDict(jsonDict);
             return Json(query.SaveToJsonDict());
         }
@@ -70,6 +77,14 @@ namespace eqtest.Controllers
         /// <returns><see cref="IActionResult"/> object</returns>
         [HttpPost]
         public IActionResult GetList([FromBody] JsonDict jsonDict) {
+            var eqService = new EqServiceProviderDb
+            {
+                ModelLoader = (model, modelName) =>
+                {
+                    model.LoadFromEntityType(typeof(Permit));
+                    model.SortEntities();
+                }
+            };
             return Json(eqService.GetList(jsonDict, dbContext.Permits));
         }
 
@@ -82,8 +97,16 @@ namespace eqtest.Controllers
         public IActionResult ApplyFilter([FromBody] JsonDict jsonDict) {
             var queryDict = jsonDict["query"] as JsonDict;
             var optionsDict = jsonDict["options"] as JsonDict;
-            var query = eqService.GetQueryByJsonDict(queryDict);
+            var eqService = new EqServiceProviderDb
+            {
+                ModelLoader = (model, modelName) =>
+                {
+                    model.LoadFromEntityType(typeof(Permit));
+                    model.SortEntities();
+                }
+            };
 
+            var query = eqService.GetQueryByJsonDict(queryDict);
             var lvo = optionsDict.ToListViewOptions();
 
             var list = dbContext.Permits

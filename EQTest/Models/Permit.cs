@@ -66,12 +66,14 @@ namespace EQTest.Models
         [EqEntityAttr(UseInResult = false, UseInConditions = false)]
         public int LastModifiedBy { get; set; }
 
+
+        [Display(Name = "Permit Lots")]
         public virtual IEnumerable<PermitLot> PermitLots { get; set; }
 
         public virtual IEnumerable<PermitDateGroup> PermitDateGroups { get; set; }
 
         // Should not show in the Filter Bar
-        [EqEntityAttr(UseInResult = false)]
+        [EqEntityAttr(UseInResult = false, UseInConditions = false)]
         public virtual IEnumerable<PermitTypeLink> PermitTypeLink { get; set; }
     }
 
