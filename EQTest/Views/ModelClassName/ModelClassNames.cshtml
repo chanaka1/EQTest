@@ -10,14 +10,8 @@
 <script type="text/javascript">
 
     window.easyQuerySettings = {
-        serviceUrl: getPrefix(),
-        loadDefaultModel: true,
-        useBootstrap: true,
-        filterBar: {
-            queryPanel: {
-                attrElementFormat: "{entity} {attr}"
-            }
-        }
+        serviceUrl: getPrefix(),        loadDefaultModel: true,
+        useBootstrap: true
     };
 		
     function getPrefix() {
@@ -26,6 +20,9 @@
             res = res + '/';
         return res;
     }
+
+    //window.EQ.client.defaultModelId = "Permit";
+    //window.EQ.client.serviceUrl = '/ModelClassName/ApplyFilter';
 </script>
 
 <h2>ModelClassNames</h2>
