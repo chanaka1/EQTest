@@ -106,7 +106,9 @@ namespace eqtest.Controllers
                 }
             };
 
+            eqService.Formats.UseTimezoneOffset = true;
             var query = eqService.GetQueryByJsonDict(queryDict);
+            //query.TimezoneOffset = Convert.ToInt16(DateTimeOffset.Now.Offset.TotalMinutes);
             var lvo = optionsDict.ToListViewOptions();
 
             var list = dbContext.Permits
@@ -115,7 +117,7 @@ namespace eqtest.Controllers
                 // Add here properties of your model
                 //     .Include(c => c.) 
                 //     .Include(c => c.)
-                .DynamicQuery<Permit>(query, lvo.SortBy).ToPagedList(lvo.PageIndex, 20);
+                .DynamicQuery<Permit>(query, lvo.SortBy, false, eqService.Formats).ToPagedList(lvo.PageIndex, 20);
 
             return View("_ModelClassNameListPartial", list);
         }
