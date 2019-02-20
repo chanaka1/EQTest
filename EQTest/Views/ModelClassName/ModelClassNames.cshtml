@@ -3,17 +3,23 @@
     ViewBag.Title = "ModelClassNames";
 }
 
- <link href="//cdn.korzh.com/eq/4.3/themes/default/easyquery.min.css" rel="stylesheet" type="text/css" media="screen" />
- <link href="//cdn.korzh.com/eq/4.3/themes/default/eq-icons-default.min.css" rel="stylesheet" type="text/css" media="screen" />
- <link href="//cdn.korzh.com/eq/4.3/themes/default/eqview.min.css" rel="stylesheet" type="text/css" media="screen" />
+<link href="//cdn.korzh.com/eq/4.4/themes/default/easyquery.min.css" rel="stylesheet" type="text/css" media="screen" />
+<link href="//cdn.korzh.com/eq/4.4/themes/default/eq-icons-default.min.css" rel="stylesheet" type="text/css" media="screen" />
+<link href="//cdn.korzh.com/eq/4.4/themes/default/eqview.min.css" rel="stylesheet" type="text/css" media="screen" />
 
 <script type="text/javascript">
 
     window.easyQuerySettings = {
-        serviceUrl: getPrefix(),        loadDefaultModel: true,
-        useBootstrap: true
+        serviceUrl: getPrefix(),
+        loadDefaultModel: true,
+        useBootstrap: true,
+        filterBar: {
+            queryPanel: {
+                showPoweredBy: false,
+            }
+        },
     };
-		
+
     function getPrefix() {
         var res = window.location.pathname;
         if (res.charAt(res.length - 1) !== '/')
@@ -33,10 +39,44 @@
 <div id="ResultPanel"></div>
 
 
+<form id="SaveQueryForm" asp-controller="ModelClassName" asp-action="SaveQueryToFile" method="post">
+    <input type="hidden" id="queryToSaveJson" name="queryJson" />
+</form>
+<div id="SaveQueryToFileButton" class="eqv-button load-query-button">Save to file</div>
+
+<form id="LoadQueryForm" asp-controller="ModelClassName" asp-action="LoadQueryFromFile" method="post" enctype="multipart/form-data">
+    <input type="hidden" id="queryToLoadModelId" name="modelId" />
+    <input type="file" id="LoadQueryFileInput" name="queryFile" style="display: none;" />
+</form>
+<div id="LoadQueryFileButton" class="eqv-button load-query-button">Load query file</div>
+
+
 @section scripts {
-<!-- EasyQuery script files -->
-<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
-<script src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.12.1/jquery-ui.min.js"></script>
-<script src="//cdn.korzh.com/eq/4.3/eq.all.min.js" type="text/javascript"></script>
-<script src="//cdn.korzh.com/eq/4.3/eq.view.grid.min.js" type="text/javascript"></script>
+    <!-- EasyQuery script files -->
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="//cdn.korzh.com/eq/4.4/eq.all.min.js" type="text/javascript"></script>
+    <script src="//cdn.korzh.com/eq/4.4/eq.view.grid.min.js" type="text/javascript"></script>
+
+    <script>
+
+        $('#LoadQueryFileButton').click(function () {
+            $('#LoadQueryFileInput').click();
+        });
+
+        $('#LoadQueryFileInput').change(function () {
+            var query = EQ.client.getQuery();
+            $("#queryToLoadModelId").val(query.getModel().getId());
+            $('#LoadQueryForm').submit();
+        });
+
+
+        $('#SaveQueryToFileButton').click(function () {
+            var query = EQ.client.getQuery();
+            var queryJson = query.toJSON();
+
+            $("#queryToSaveJson").val(queryJson);
+            $('#SaveQueryForm').submit();
+        });
+    </script>
 }

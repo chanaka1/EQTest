@@ -13,6 +13,10 @@ using Korzh.EasyQuery.Linq;
 using Korzh.EasyQuery.AspNetCore;
 using EQTest.Data;
 using EQTest.Models;
+using System.IO;
+using Korzh.EasyQuery.EntityFrameworkCore;
+using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Http;
 
 namespace eqtest.Controllers
 {
@@ -89,6 +93,64 @@ namespace eqtest.Controllers
         }
 
 
+        [HttpPost]
+        public FileStreamResult SaveQueryToFile(string queryJson)
+        {
+            var eqService = new EqServiceProviderDb
+            {
+                ModelLoader = (model, modelName) =>
+                {
+                    model.LoadFromEntityType(typeof(Permit));
+                    model.SortEntities();
+                }
+            };
+            var query = eqService.GetQueryByJsonDict(queryJson.ToJsonDict());
+            MemoryStream stream = new MemoryStream();
+            query.SaveToStream(stream);
+            stream.Position = 0;
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/xml").MediaType)
+            {
+                FileDownloadName = "CurrentQuery.xml"
+            };
+
+        }
+
+        [HttpPost]
+        public IActionResult LoadQueryFromFile(string modelId, IFormFile queryFile)
+        {
+            if (queryFile != null && queryFile.Length > 0)
+                try
+                {
+                    var eqService = new EqServiceProviderDb
+                    {
+                        ModelLoader = (model, modelName) =>
+                        {
+                            model.LoadFromEntityType(typeof(Permit));
+                            model.SortEntities();
+                        }
+                    };
+                    var query = eqService.GetQuery(modelId, null);
+                    using (var fileStream = queryFile.OpenReadStream())
+                    {
+                        query.LoadFromStream(fileStream);
+                    }
+
+                    //saves loaded query into session so it will be loaded automatically after redirect
+                    eqService.SyncQuery(query);
+                    return RedirectToAction("Index", new { queryId = query.ID });
+                }
+                catch
+                {
+                    //just do nothing  
+                }
+            else
+            {
+
+            }
+
+            return RedirectToAction("Index");
+        }
+
         /// <summary>
         /// This action is called when user clicks on "Apply" button in FilterBar or other data-filtering widget
         /// </summary>
@@ -108,6 +170,53 @@ namespace eqtest.Controllers
 
             var query = eqService.GetQueryByJsonDict(queryDict);
             var lvo = optionsDict.ToListViewOptions();
+
+            // New eq service
+            var eqServiceContext = new EqServiceProviderDb
+            {
+                ModelLoader = (model, modelName) =>
+                {
+                    (model as Korzh.EasyQuery.Db.DbModel).LoadFromDbContext(this.dbContext);
+                    model.SortEntities();
+                }
+            };
+
+            eqServiceContext.ConnectionResolver = () => {
+                return dbContext.Database.GetDbConnection();
+            };
+
+            // Save to File
+            MemoryStream stream = new MemoryStream();
+            query.SaveToStream(stream);
+            stream.Position = 0;
+            var test = true;
+            if (test)
+            {
+                return new FileStreamResult(stream, new MediaTypeHeaderValue("text/xml").MediaType)
+                {
+                    FileDownloadName = "CurrentQuery.xml"
+                };
+            }
+
+            // Read from file
+            var xmlQuery = eqServiceContext.GetQuery("", null);
+            using (var fileStream = stream)
+            {
+                xmlQuery.LoadFromStream(fileStream);
+            }
+
+            //eqService.SyncQuery(xmlQuery);
+            //var xmlJsonDict = xmlQuery.SaveToJsonDict();
+            //var xmlqueryDict = xmlJsonDict["query"] as JsonDict;
+            //var xmloptionsDict = xmlJsonDict["options"] as JsonDict;
+
+            // Load from file 
+            var xmlqueryDict = xmlQuery.SaveToJsonDict();
+            eqServiceContext.LoadOptions(xmlqueryDict);
+            var xmlquery2 = eqServiceContext.GetQueryByJsonDict(xmlqueryDict);
+            var xmlqbr = eqServiceContext.BuildQuery(xmlquery2);
+            var resultSet = eqServiceContext.ExecuteQuery(xmlquery2);
+
 
             var list = dbContext.Permits
                 .Include(x => x.PermitLots).ThenInclude(y => y.Lot).ThenInclude(y => y.LotLocations).ThenInclude(y => y.Location)
